@@ -1,0 +1,30 @@
+on: push
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+
+            - name: Build index.html file
+              run: python build.py
+
+            - name: Upload build files
+              uses: actions/Upload-pages-artifact@v3
+              with:
+                path: out/
+
+    deploy:
+        runs-on: ubuntu-latest
+        environment: 
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        needs: build
+        permissions:
+            pages: write
+            id-token: write
+
+        steps:
+            - name: Deploy to GitHub pages
+              uses: actions/deploy-pages@v4
