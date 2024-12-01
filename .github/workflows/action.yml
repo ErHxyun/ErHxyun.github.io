@@ -36,7 +36,8 @@ jobs:
     git-town:
       name: Display the branch stack
       runs-on: ubuntu-latest
-      if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
+      needs: build
+
       permissions:
         contents: read
         pull-requests: write
@@ -44,3 +45,5 @@ jobs:
       steps:
         - uses: actions/checkout@v4
         - uses: git-town/action@v1
+          with:
+            main-branch: 'main'
