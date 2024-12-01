@@ -1,29 +1,35 @@
 on:
   push:
     branches:
-    - main
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: start deployment
-      uses: bobheadxi/deployments@v1
-      id: deployment
-      with:
-        step: start
-        token: ${{ secrets.GITHUB_TOKEN }}
-        env: release
+      # Start Deployment
+      - name: Start deployment
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: release
 
-    - name: do my deploy
-      # ...
+      # Actual Deployment Step (Replace this with your deployment logic)
+      - name: Do my deploy
+        run: |
+          # Add your deployment commands here
+          echo "Deploying the application..."
+          # For example: copying files, deploying to a server, etc.
 
-    - name: update deployment status
-      uses: bobheadxi/deployments@v1
-      if: always()
-      with:
-        step: finish
-        token: ${{ secrets.GITHUB_TOKEN }}
-        status: ${{ job.status }}
-        env: ${{ steps.deployment.outputs.env }}
-        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+      # Update Deployment Status
+      - name: Update deployment status
+        uses: bobheadxi/deployments@v1
+        if: always()  # Ensures this runs even if the previous step fails
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          env: ${{ steps.deployment.outputs.env }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
