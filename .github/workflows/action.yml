@@ -48,4 +48,4 @@ jobs:
             SLACK_MESSAGE: 'Post Content :rocket:'
             SLACK_TITLE: Post Title
             SLACK_USERNAME: rtCamp
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            SLACK_WEBHOOK: ${{ https://hooks.slack.com/services/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 }}
