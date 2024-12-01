@@ -1,49 +1,59 @@
-on: 
-  push:
+name: Pull Request and Build/Deploy Workflow
+
+# This workflow is triggered on pull requests and push events for the repository.
+on:
   pull_request:
     branches:
-      - 'main'
+      - main
+      - develop
+      - feature/*
+  push:
+    branches:
+      - main
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
+  clean_commit_job:
+    name: Prevent Bad Commit Messages
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code (optional, good practice for future-proofing)
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Build index.html file
-              run: python build.py
+      # Run the clean commit step
+      - name: Run Clean Commit Action
+        uses: ad1992/clean-commit-action@v0.2.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Upload build files
-              uses: actions/Upload-pages-artifact@v3
-              with:
-                path: out/
+  build:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    deploy:
-        runs-on: ubuntu-latest
-        environment: 
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        needs: build
-        permissions:
-            pages: write
-            id-token: write
+      - name: Build index.html file
+        run: python build.py
 
-        steps:
-            - name: Deploy to GitHub pages
-              uses: actions/deploy-pages@v4
+      - name: Upload build files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out/
 
-    git-town:
-      name: Display the branch stack
-      runs-on: ubuntu-latest
-      needs: build
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+    permissions:
+      pages: write
+      id-token: write
 
-      permissions:
-        contents: read
-        pull-requests: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      steps:
-        - uses: actions/checkout@v4
-        - uses: git-town/action@v1
-          with:
-            main-branch: 'main'
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
