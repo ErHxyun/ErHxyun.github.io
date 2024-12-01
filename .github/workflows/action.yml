@@ -13,6 +13,8 @@ on:
 
 jobs:
   clean_commit_job:
+    # This job only runs for pull requests
+    if: github.event_name == 'pull_request'
     name: Prevent Bad Commit Messages
     runs-on: ubuntu-latest
     steps:
@@ -27,6 +29,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   build:
+    # This job only runs for push events
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -42,6 +45,7 @@ jobs:
           path: out/
 
   deploy:
+    # This job only runs for push events
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
