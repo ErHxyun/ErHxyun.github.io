@@ -1,32 +1,45 @@
-on: push
+name: CI/CD Workflow with Automatic Pull Request Review
+
+on: 
+  push:
+  pull_request:
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+        pages: write
+        id-token: write
+        contents: read
+        actions: read
+    environment: 
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+        
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-            - name: Build index.html file
-              run: python build.py
+      - name: Build index.html file
+        run: python build.py
 
-            - name: Upload build files
-              uses: actions/Upload-pages-artifact@v3
-              with:
-                path: out/
+      - name: Upload build files
+        uses: actions/Upload-pages-artifact@v3
+        with:
+          path: out/
 
-    deploy:
-        runs-on: ubuntu-latest
-        environment: 
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        needs: build
-        permissions:
-            pages: write
-            id-token: write
+      - name: Deploy to GitHub pages
+        uses: actions/deploy-pages@v4
 
-        steps:
-            - name: Deploy to GitHub pages
-              uses: actions/deploy-pages@v4
-
-    
+  automate-pullrequest-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Approve pull request
+        if: github.actor == 'dependabot[bot]'
+        uses: andrewmusgrave/automatic-pull-request-review@0.0.5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          event: APPROVE
+          body: 'Thank you dependabot 🎊'
