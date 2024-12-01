@@ -1,6 +1,3 @@
-name: Pull Request and Build/Deploy Workflow
-
-# This workflow is triggered on pull requests and push events for the repository.
 on:
   pull_request:
     branches:
@@ -13,17 +10,10 @@ on:
 
 jobs:
   clean_commit_job:
-    # This job only runs for pull requests
-    if: github.event_name == 'pull_request'
-    name: Prevent Bad Commit Messages
+    name: Job to prevent bad commit messages
     runs-on: ubuntu-latest
     steps:
-      # Checkout the code (optional, good practice for future-proofing)
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Run the clean commit step
-      - name: Run Clean Commit Action
+      - name: Clean commit step
         uses: ad1992/clean-commit-action@v0.2.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
