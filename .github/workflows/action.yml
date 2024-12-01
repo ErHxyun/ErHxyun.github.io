@@ -1,26 +1,10 @@
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
-      - feature/*
   push:
-    branches:
-      - main
+  pull_request:
+    branches: 'main'
 
 jobs:
-  clean_commit_job:
-    name: Job to prevent bad commit messages
-    runs-on: ubuntu-latest
-    steps:
-      - name: clean-commit
-        uses: ad1992/clean-commit-action@v0.2.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
   build:
-    # This job only runs for push events
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -30,24 +14,44 @@ jobs:
         run: python build.py
 
       - name: Upload build files
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/Upload-pages-artifact@v3
         with:
           path: out/
 
   deploy:
-    # This job only runs for push events
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: 
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
     needs: build
-    environment:
-      name: github-pages
     permissions:
       pages: write
       id-token: write
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub pages
         uses: actions/deploy-pages@v4
+    
+  commit-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # checkout PR HEAD commit
+          fetch-depth: 0  # required for merge-base check
+      - uses: commit-check/commit-check-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # use GITHUB_TOKEN because of use pr-comments
+        with:
+          message: true
+          branch: true
+          author-name: true
+          author-email: true
+          commit-signoff: true
+          merge-base: false
+          job-summary: true
+          pr-comments: ${{ github.event_name == 'pull_request' }}
+
