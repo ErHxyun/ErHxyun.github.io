@@ -1,35 +1,21 @@
-on:
-  push:
-    branches:
-      - main
-
+name: Build and Deploy
+on: [push]
+permissions:
+  contents: write
 jobs:
-  deploy:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
     runs-on: ubuntu-latest
     steps:
-      # Start Deployment
-      - name: Start deployment
-        uses: bobheadxi/deployments@v1
-        id: deployment
-        with:
-          step: start
-          token: ${{ secrets.GITHUB_TOKEN }}
-          env: release
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
 
-      # Actual Deployment Step (Replace this with your deployment logic)
-      - name: Do my deploy
+      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
         run: |
-          # Add your deployment commands here
-          echo "Deploying the application..."
-          # For example: copying files, deploying to a server, etc.
+          npm ci
+          npm run build
 
-      # Update Deployment Status
-      - name: Update deployment status
-        uses: bobheadxi/deployments@v1
-        if: always()  # Ensures this runs even if the previous step fails
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          step: finish
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          env: ${{ steps.deployment.outputs.env }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          folder: build # The folder the action should deploy.
