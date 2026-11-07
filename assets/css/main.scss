@@ -1,0 +1,269 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+@charset "utf-8";
+
+/* Built-in Sass modules you’ll likely use across partials */
+@use "sass:math";
+@use "sass:string";
+
+/* Configure your design tokens BEFORE loading any of your partials.
+   Make sure `_sass/_variables.scss` declares `$max-content-width: 72rem !default;` */
+@use "variables" with (
+  $max-content-width: {{ site.max_width | default:  "930px" }}
+);
+
+/* Your project partials — convert these files to `@use "variables";`
+   (or `@use "variables" as *;`) inside each file and qualify variables if needed. */
+@use "themes";
+@use "layout";
+
+// Core styles organized by usage
+@use "typography";
+@use "navbar";
+@use "footer";
+@use "blog";
+@use "publications";
+@use "components";
+@use "utilities";
+
+// Other specialized styles
+@use "tabs";
+@use "teachings";
+@use "typograms";
+
+// Site-wide 110% scale (local addition)
+html {
+  font-size: 110%;
+}
+
+// Smaller social icons at the bottom of the About page (theme default: 4rem)
+.social .contact-icons {
+  font-size: 2rem;
+
+  a img {
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  a svg {
+    width: 1.75rem;
+    height: 2rem;
+    margin-bottom: 0.25rem;
+
+    image {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  }
+}
+
+// Bold venue names in publication entries
+.publications .periodical em {
+  font-weight: bold;
+}
+
+// Horizontal project cards: image left, text right; stacked on phones
+.project-row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  overflow: hidden;
+
+  .project-row-img {
+    flex: 0 0 40%;
+    max-width: 40%;
+
+    figure,
+    picture {
+      margin: 0;
+      height: 100%;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top left;
+    }
+  }
+
+  .project-row-body {
+    flex: 1;
+    padding: 1.25rem 1.5rem;
+
+    .card-title a {
+      color: var(--global-text-color);
+    }
+  }
+
+  .project-row-links {
+    display: flex;
+    gap: 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+
+    .project-row-img {
+      max-width: 100%;
+    }
+  }
+}
+
+// GitHub stats card + contribution heatmap side by side (Projects page)
+.github-row {
+  display: flex;
+  align-items: stretch; // both cards take the height of the stats image
+  gap: 1.5rem;
+  margin: 0.5rem 0 1rem;
+
+  > .repo {
+    flex: 0 0 42%;
+    max-width: 42%;
+    padding: 0 !important;
+
+    img {
+      vertical-align: top; // no inline gap; leaves the theme's only-light/only-dark display rules alone
+    }
+  }
+
+  // Same frame as the stats card image (github-stats-extended card-bg)
+  .gh-heatmap {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.9rem 1.25rem 0.75rem;
+    border: 1px solid #e4e2e2;
+    border-radius: 4.5px;
+    background: #fffefe;
+    font-size: 0.75rem;
+    color: #434d58;
+    visibility: hidden;
+
+    &.loaded {
+      visibility: visible;
+    }
+
+    .gh-heatmap-total {
+      font-family: "Segoe UI", Ubuntu, sans-serif;
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: #2f80ed;
+      margin-bottom: 0.4rem;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+
+      text {
+        font-family: "Segoe UI", Ubuntu, sans-serif;
+        font-size: 9px;
+        fill: currentColor;
+      }
+    }
+
+    .gh-heatmap-legend {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 3px;
+      margin-top: 0.4rem;
+      font-family: "Segoe UI", Ubuntu, sans-serif;
+      font-size: 0.75rem;
+
+      span {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+      }
+    }
+
+    // GitHub's own contribution colors, light theme
+    .l0 { fill: #ebedf0; background: #ebedf0; }
+    .l1 { fill: #9be9a8; background: #9be9a8; }
+    .l2 { fill: #40c463; background: #40c463; }
+    .l3 { fill: #30a14e; background: #30a14e; }
+    .l4 { fill: #216e39; background: #216e39; }
+  }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+
+    > .repo {
+      max-width: 100%;
+    }
+
+    .gh-heatmap {
+      width: 100%;
+    }
+  }
+}
+
+// GitHub's own contribution colors, dark theme
+html[data-theme="dark"] .github-row .gh-heatmap {
+  background: #151515;
+  color: #9f9f9f;
+
+  .gh-heatmap-total {
+    color: #fff;
+  }
+
+  .l0 { fill: #262626; background: #262626; }
+  .l1 { fill: #0e4429; background: #0e4429; }
+  .l2 { fill: #006d32; background: #006d32; }
+  .l3 { fill: #26a641; background: #26a641; }
+  .l4 { fill: #39d353; background: #39d353; }
+}
+
+// Two-up photo grid for Life posts; stacks on phones
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0.25rem;
+
+  figure,
+  picture {
+    margin: 0;
+  }
+
+  img {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  &.photo-grid-portrait img {
+    aspect-ratio: 4 / 5;
+    object-position: center top;
+  }
+
+  &.photo-grid-landscape img {
+    aspect-ratio: 4 / 3;
+  }
+
+  &.photo-grid-tall img {
+    aspect-ratio: 3 / 4;
+  }
+
+  // One full-width image per row, uncropped (for screenshots)
+  &.photo-grid-stack {
+    grid-template-columns: 1fr;
+
+    img {
+      object-fit: contain;
+    }
+  }
+
+  @media (max-width: 575px) {
+    grid-template-columns: 1fr;
+  }
+}

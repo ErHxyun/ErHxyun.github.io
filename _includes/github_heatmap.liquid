@@ -1,0 +1,70 @@
+<div class="gh-heatmap" data-username="{{ include.username }}">
+  <div class="gh-heatmap-total"></div>
+  <a class="gh-heatmap-graph" href="https://github.com/{{ include.username }}" aria-label="{{ include.username }}'s GitHub contributions"></a>
+  <div class="gh-heatmap-legend">
+    Less <span class="l0"></span><span class="l1"></span><span class="l2"></span><span class="l3"></span><span class="l4"></span> More
+  </div>
+</div>
+<script>
+  (function () {
+    var root = document.currentScript.previousElementSibling;
+    var user = root.dataset.username;
+    fetch("https://github-contributions-api.jogruber.de/v4/" + encodeURIComponent(user) + "?y=last")
+      .then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var days = data.contributions;
+        var cell = 10, gap = 3, step = cell + gap, left = 28, top = 16;
+        var first = new Date(days[0].date + "T00:00:00");
+        var offset = first.getDay(); // pad so weeks start on Sunday
+        var weeks = Math.ceil((days.length + offset) / 7);
+        var w = left + weeks * step, h = top + 7 * step;
+        var ns = "http://www.w3.org/2000/svg";
+        var svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+        svg.setAttribute("role", "img");
+
+        function text(x, y, s) {
+          var t = document.createElementNS(ns, "text");
+          t.setAttribute("x", x);
+          t.setAttribute("y", y);
+          t.textContent = s;
+          svg.appendChild(t);
+        }
+
+        [["Mon", 1], ["Wed", 3], ["Fri", 5]].forEach(function (d) {
+          text(0, top + d[1] * step + cell - 1, d[0]);
+        });
+
+        var lastMonth = -1;
+        days.forEach(function (d, i) {
+          var idx = i + offset, col = Math.floor(idx / 7), row = idx % 7;
+          var date = new Date(d.date + "T00:00:00");
+          if (row === 0 && date.getMonth() !== lastMonth && col < weeks - 1) {
+            lastMonth = date.getMonth();
+            text(left + col * step, 10, date.toLocaleString("en-US", { month: "short" }));
+          }
+          var r = document.createElementNS(ns, "rect");
+          r.setAttribute("x", left + col * step);
+          r.setAttribute("y", top + row * step);
+          r.setAttribute("width", cell);
+          r.setAttribute("height", cell);
+          r.setAttribute("rx", 2);
+          r.setAttribute("class", "l" + d.level);
+          var tip = document.createElementNS(ns, "title");
+          tip.textContent = d.count + " contribution" + (d.count === 1 ? "" : "s") + " on " + d.date;
+          r.appendChild(tip);
+          svg.appendChild(r);
+        });
+
+        root.querySelector(".gh-heatmap-graph").appendChild(svg);
+        root.querySelector(".gh-heatmap-total").textContent = data.total.lastYear + " contributions in the last year";
+        root.classList.add("loaded");
+      })
+      .catch(function () {
+        root.style.display = "none";
+      });
+  })();
+</script>

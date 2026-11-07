@@ -1,0 +1,18 @@
+{% assign project_link = project.redirect | default: project.url | relative_url %}
+<div class="project-row card hoverable mb-4">
+  {% if project.img %}
+    <a class="project-row-img" href="{{ project_link }}">
+      {% include figure.liquid loading="eager" path=project.img sizes="(min-width: 768px) 400px, 100vw" alt="project thumbnail" %}
+    </a>
+  {% endif %}
+  <div class="project-row-body">
+    <h3 class="card-title"><a href="{{ project_link }}">{{ project.title }}</a></h3>
+    <p class="card-text">{{ project.description }}</p>
+    <div class="project-row-links">
+      <a href="{{ project_link }}">Visit <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      {% if project.github %}
+        <a href="{{ project.github }}" data-toggle="tooltip" title="Code Repository"><i class="fa-brands fa-github"></i> Code</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
