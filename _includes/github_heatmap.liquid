@@ -59,7 +59,9 @@
           svg.appendChild(r);
         });
 
-        root.querySelector(".gh-heatmap-graph").appendChild(svg);
+        var graph = root.querySelector(".gh-heatmap-graph");
+        graph.appendChild(svg);
+        graph.scrollLeft = graph.scrollWidth; // on phones the graph scrolls; show the latest weeks first
         root.querySelector(".gh-heatmap-total").textContent = data.total.lastYear + " contributions in the last year";
         root.classList.add("loaded");
       })

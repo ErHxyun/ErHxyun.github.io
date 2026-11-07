@@ -282,3 +282,91 @@ html[data-theme="dark"] .github-row .gh-heatmap {
   border: 1px solid var(--global-divider-color);
   border-radius: 6px;
 }
+
+// ---------------------------------------------------------------------------
+// Phone layout (desktop is unchanged)
+// ---------------------------------------------------------------------------
+@media (max-width: 575px) {
+  // The 110% desktop scale is too large on a phone
+  html {
+    font-size: 100%;
+  }
+
+  // Fixed footer covers ~10% of a small screen; let it scroll with the page
+  footer.fixed-bottom {
+    position: static;
+  }
+
+  body,
+  main {
+    padding-bottom: 0 !important;
+  }
+
+  // ...but keep it at the bottom of the screen on short pages (e.g. CV)
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  footer.fixed-bottom {
+    margin-top: auto;
+  }
+
+  // Homepage photo: smaller and centered instead of filling the first screen
+  .post .profile {
+    max-width: 62%;
+    margin: 0 auto 1rem;
+    float: none;
+    text-align: center;
+  }
+
+  // Venue badges: size to their text instead of a full-width bar.
+  // (Tailwind's layered `.w-100 { width: 100% !important }` can't be beaten on
+  // width, so cap it with max-width instead.)
+  .publications .abbr abbr.badge {
+    max-width: max-content;
+    padding: 0.25rem 0.6rem;
+  }
+
+  // Project cards: tighter text block
+  .project-row .project-row-body {
+    padding: 1rem;
+
+    .card-title {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  // Heatmap: keep GitHub-sized cells and scroll sideways, starting at the latest week
+  .github-row .gh-heatmap .gh-heatmap-graph {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    svg {
+      width: 640px;
+      max-width: none;
+    }
+  }
+
+  // Most phone browsers can't render an embedded PDF; show buttons instead
+  .cv-pdf {
+    display: none;
+  }
+
+  .cv-pdf-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+
+    a {
+      display: block;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--global-theme-color);
+      border-radius: 6px;
+      text-align: center;
+    }
+  }
+}
