@@ -23,5 +23,12 @@ module.exports = {
     // and page chrome (scroll-progress bar, ToC) bleeds through a zoomed image.
     "medium-zoom-overlay",
     "medium-zoom-image--opened",
+    // _includes/github_heatmap.liquid builds the SVG and toggles these at runtime
+    "loaded",
+    "l0",
+    "l1",
+    "l2",
+    "l3",
+    "l4",
   ],
 };
