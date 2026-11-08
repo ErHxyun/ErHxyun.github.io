@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://erhxyun.github.io/Xiyun-Hu-Personal-Academic-Portfolio/sitemap.xml
+Sitemap: https://erhxyun.github.io/sitemap.xml
